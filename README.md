@@ -15,7 +15,7 @@ Rust ile yazılmış, birden fazla cami ve hatim grubu için sade yönetim ve ok
 Paket Debian 13 için hazırlanır. Paket dosyasını kurun:
 
 ```bash
-sudo apt install ./hatimhane_0.2.0_amd64.deb
+apt install ./hatimhane_0.2.0_amd64.deb
 ```
 
 `/etc/hatimhane.d/10-server.toml` içinde `origin` değerini gerçek HTTPS adresinizle değiştirin. Sonunda `/` olmamalı. Örneğin `https://hatim.oktayaktogan.com.tr`.
@@ -23,8 +23,8 @@ sudo apt install ./hatimhane_0.2.0_amd64.deb
 İlk sunucu sahibi hesabı; parolayı terminalin gizli istemine yazın:
 
 ```bash
-sudo -u hatimhane hatimhane owner --username yonetici
-sudo systemctl restart hatimhane.service
+runuser -u hatimhane -- hatimhane owner --username yonetici
+systemctl restart hatimhane.service
 ```
 
 Varsayılan hesap veya parola yoktur. Parola en az 12 karakterdir. `/panel/` yönetim panelidir. `packaging/nginx.conf.example` içeriğini HTTPS Nginx sunucunuza uyarlayın. Basic Auth kullanılmaz; uygulama kendi oturumunu yönetir. Nginx `X-Real-IP` başlığını `$remote_addr` ile kendisi yazar. Doğrudan uygulama portunu internete açmayın.
@@ -38,8 +38,8 @@ Yapılandırma dosyaları ad sırasıyla okunur; sonraki dosyanın aynı anahtar
 Eski cron ve iki Python hizmetini kapatın. Önce gerçek, güncel JSON'u ve veritabanını yedekleyin. Güncel JSON'u hizmet kullanıcısının okuyabileceği bir konuma koyun:
 
 ```bash
-sudo -u hatimhane hatimhane import --json /var/lib/hatimhane/eski-hatim.json --slug htuc
-sudo systemctl restart hatimhane.service
+runuser -u hatimhane -- hatimhane import --json /var/lib/hatimhane/eski-hatim.json --slug htuc
+systemctl restart hatimhane.service
 ```
 
 Eski `cami_adi`, `hafta_baslangici`, `katilimcilar[].ad/cuz` alanları okunur. Cami ve 1 numaralı grup için yeni UUID'ler oluşturulur. Başlangıç döngüsü salı 21.00'dır. Aynı adres ikinci kez içe aktarılırsa çakışma hatası döner; mevcut cami ezilmez. Geçmiş hafta tarihi varsa hizmet açılırken kaçırılan döngüler yakalanır.
@@ -70,7 +70,7 @@ Parolalar Argon2id ile özetlenir(hash). Oturum rastgele 256 bit değerdir; veri
 Sunucuya işletim sistemi erişimi olan yönetici hesap kurtarmak için:
 
 ```bash
-sudo -u hatimhane hatimhane owner --username yonetici --reset
+runuser -u hatimhane -- hatimhane owner --username yonetici --reset
 ```
 
 Yeni parolayı gizli isteme yazın. Bu işlem iki aşamalı doğrulamayı kaldırır ve hesabın bütün oturumlarını iptal eder. `--password-file` otomasyon/test içindir; parola dosyasını gizli tutun ve işiniz bitince kaldırın. Parola komut satırı argümanına yazılmaz.

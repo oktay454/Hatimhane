@@ -1,0 +1,2 @@
+# Configuration may contain database credentials; postinst grants the service group access.
+hatimhane: non-standard-file-perm 0640 != 0644 [etc/hatimhane.d/10-server.toml]

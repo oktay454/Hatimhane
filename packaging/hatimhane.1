@@ -1,0 +1,29 @@
+.TH HATIMHANE 1 "October 2026" "Hatimhane 0.2.0"
+.SH NAME
+hatimhane \- mosque and Quran reading group management
+.SH SYNOPSIS
+.B hatimhane
+.RB [ --config-dir " directory" ]
+.I command
+.SH COMMANDS
+.TP
+.B serve
+Run HTTP administration, public JSON publishing and scheduling in one service.
+.TP
+.B owner --username name [--password-file path] [--reset]
+Create an owner account. Without a password file, prompt securely on the terminal.
+Reset clears two-factor authentication and revokes existing sessions.
+.TP
+.B import --json path --slug uri [--mosque-name name]
+Import the earlier single-mosque JSON format into a new mosque and group.
+.TP
+.B check
+Validate configuration and connect to the database. Creates the initial schema.
+.SH FILES
+/etc/hatimhane.d/*.toml are loaded in lexical order.
+Data and public snapshots are stored under /var/lib/hatimhane.
+.SH SECURITY
+Serve behind an HTTPS reverse proxy. Public requests use snapshots, not database queries.
+No default account or password is provided.
+.SH AUTHOR
+Oktay Aktoğan

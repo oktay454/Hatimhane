@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="light dark">
+	<title>Hatimhane</title>
+	<link rel="stylesheet" href="/assets/style.css">
+	<script src="/assets/theme.js"></script>
+	<script src="/assets/public.js" defer></script>
+</head>
+<body>
+	<a class="atla" href="#icerik">İçeriğe geç</a>
+	<header class="ust"><div class="ust-icerik">
+		<a class="marka" href="/">Hatimhane</a>
+		<div class="tema-alani">
+			<button id="tema-dugmesi" class="tema-dugmesi" type="button"><span id="tema-etiketi">Koyu görünüm</span></button>
+			<button id="otomatik-tema" class="otomatik-tema" type="button" hidden>Cihaz ayarına dön</button>
+		</div>
+	</div></header>
+	<main id="icerik" class="sayfa">
+		<section class="giris"><p class="besmele" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><p id="cami-adi" class="cami-adi" hidden></p><h1 id="baslik">Haftalık hatim listesi</h1><p id="aciklama" class="aciklama">Okuyacağınız cüzü isminizin yanında bulabilirsiniz.</p></section>
+		<div id="durum" class="panel-durum" role="status" hidden></div>
+		<nav id="gruplar" class="kartlar" aria-label="Hatim grupları"></nav>
+		<section id="liste" hidden><p id="donem" class="panel-durum"></p><h2 id="grup-adi">Cüz paylaşımı</h2>
+			<table id="cuz-tablosu"><caption>Katılımcılar ve okuyacakları cüzler</caption><thead><tr><th scope="col">İsim</th><th scope="col">Okunacak cüz</th></tr></thead><tbody id="katilimcilar"></tbody></table>
+			<p class="kisa">Her döngüde herkes bir sonraki cüzü okur. 30. cüzden sonra 1. cüze dönülür.</p>
+		</section>
+		<noscript><p class="panel-durum">Listeyi görmek için JavaScript’i etkinleştirin.</p></noscript>
+		<footer class="alt"><p>Allah kabul etsin.</p><a href="/panel/">Yönetim paneli</a></footer>
+	</main>
+</body>
+</html>

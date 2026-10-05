@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+case "${1}" in
+	configure)
+		if ! getent passwd hatimhane >/dev/null
+		then
+			adduser --system --group --home /var/lib/hatimhane --no-create-home hatimhane
+		fi
+		install -d -m 0750 -o hatimhane -g hatimhane /var/lib/hatimhane
+		chown root:hatimhane /etc/hatimhane.d
+		chmod 0750 /etc/hatimhane.d
+		chown root:hatimhane /etc/hatimhane.d/10-server.toml
+		chmod 0640 /etc/hatimhane.d/10-server.toml
+		;;
+esac
+#DEBHELPER#

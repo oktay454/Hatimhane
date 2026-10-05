@@ -1,0 +1,17 @@
+Source: hatimhane
+Section: web
+Priority: optional
+Maintainer: Oktay Aktoğan <iletisim@oktayaktogan.com.tr>
+Build-Depends: debhelper-compat (= 13), cargo (>= 1.85), rustc (>= 1.85), pkgconf, libsqlite3-dev, python3 (>= 3.11)
+Standards-Version: 4.7.4
+Rules-Requires-Root: no
+Homepage: https://github.com/oktay454/Hatimhane
+Vcs-Git: https://github.com/oktay454/Hatimhane.git
+Vcs-Browser: https://github.com/oktay454/Hatimhane
+
+Package: hatimhane
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, ca-certificates
+Description: Mosque and Quran reading group management
+ A single Rust service with SQLite3, MariaDB and PostgreSQL support.
+ Includes scoped administration, scheduled rotations and public JSON snapshots.

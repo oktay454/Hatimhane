@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+export LIBSQLITE3_SYS_USE_PKG_CONFIG=1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release --locked --offline
+
+# Çalışma dizinini geçici veriler için kullanır; gerçek veriye dokunmaz.
+override_dh_auto_test:
+	cargo test --locked --offline
+
+override_dh_auto_install:
+	install -D -m 0755 target/release/hatimhane debian/hatimhane/usr/bin/hatimhane
+	install -D -m 0640 config/10-server.toml debian/hatimhane/etc/hatimhane.d/10-server.toml
+	install -D -m 0644 packaging/hatimhane.service debian/hatimhane/usr/lib/systemd/system/hatimhane.service
+	install -D -m 0644 packaging/hatimhane.1 debian/hatimhane/usr/share/man/man1/hatimhane.1
+	python3 packaging/licenses.py debian/hatimhane/usr/share/doc/hatimhane/third-party-licenses
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0640 debian/hatimhane/etc/hatimhane.d/10-server.toml
+
+override_dh_clean:
+	dh_clean -Xvendor
+
+override_dh_auto_clean:
+	rm -rf target

@@ -1,0 +1,13 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Hatimhane
+Upstream-Contact: Oktay Aktoğan <iletisim@oktayaktogan.com.tr>
+Source: https://github.com/oktay454/Hatimhane
+
+Files: *
+Copyright: 2026 Oktay Aktoğan
+License: GPL-3
+ On Debian systems the complete text of the GNU General Public License
+ version 3 is found in /usr/share/common-licenses/GPL-3.
+ .
+ Rust dependency license notices are included under
+ /usr/share/doc/hatimhane/third-party-licenses.

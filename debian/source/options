@@ -1,0 +1,17 @@
+extend-diff-ignore = "(^|/)(target|work|artifacts|\.git)(/|$)"
+# Cargo checksums include ring's pregenerated Windows .o files.
+# Explicit exclusions retain those sources instead of dpkg-source's *.o default.
+tar-ignore = ".git"
+tar-ignore = "target"
+tar-ignore = "work"
+tar-ignore = "artifacts"
+tar-ignore = ".agents"
+tar-ignore = ".aws"
+tar-ignore = ".codex"
+# Exclude package staging files when a source archive is refreshed after a build.
+tar-ignore = "debian/hatimhane"
+tar-ignore = "debian/.debhelper"
+tar-ignore = "debian/files"
+tar-ignore = "debian/*.substvars"
+tar-ignore = "debian/*.debhelper*"
+tar-ignore = "debian/debhelper-build-stamp"

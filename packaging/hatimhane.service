@@ -1,0 +1,30 @@
+[Unit]
+Description=Hatimhane cami ve hatim grubu yonetimi
+After=network.target
+
+[Service]
+Type=simple
+User=hatimhane
+Group=hatimhane
+ExecStart=/usr/bin/hatimhane --config-dir /etc/hatimhane.d serve
+Restart=on-failure
+RestartSec=3
+StateDirectory=hatimhane
+StateDirectoryMode=0750
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/hatimhane
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

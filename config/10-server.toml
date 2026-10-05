@@ -1,0 +1,15 @@
+# Hatimhane. Yerel değişiklikler için 90-local.toml ekleyebilirsiniz.
+listen = "127.0.0.1:8787"
+origin = "https://hatim.example.org"
+database_url = "sqlite:///var/lib/hatimhane/hatim.sqlite3?mode=rwc"
+published_dir = "/var/lib/hatimhane/public"
+timezone = "Europe/Istanbul"
+secure_cookie = true
+session_hours = 8
+idle_minutes = 30
+scheduler_seconds = 15
+trust_loopback_proxy = true
+
+# MariaDB: database_url = "mysql://hatimhane:PAROLA@127.0.0.1/hatimhane"
+# PostgreSQL: database_url = "postgres://hatimhane:PAROLA@127.0.0.1/hatimhane"
+# Veritabanı seçimini ilk kurulumdan önce yapın. URL değişikliği veri taşımaz.

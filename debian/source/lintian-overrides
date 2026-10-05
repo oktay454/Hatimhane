@@ -1,0 +1,4 @@
+# Cargo preserves the original manifest; these are upstream metadata, not failed patches.
+hatimhane source: source-contains-patch-failure-file [vendor/*/Cargo.toml.orig]
+# Debian 13 lintian still knows Policy 4.7.2; upstream Policy is newer.
+hatimhane source: newer-standards-version 4.7.4 (current is 4.7.2)

@@ -134,6 +134,7 @@ async fn panel() -> Html<&'static str> {
 }
 async fn asset(Path(file): Path<String>) -> AppResult<Response> {
 	let (kind, body) = match file.as_str() {
+		"favicon.svg" => ("image/svg+xml", include_str!("../web/favicon.svg")),
 		"style.css" => ("text/css; charset=utf-8", include_str!("../web/style.css")),
 		"theme.js" => (
 			"application/javascript; charset=utf-8",

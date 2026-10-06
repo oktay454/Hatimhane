@@ -15,7 +15,7 @@ Rust ile yazılmış, birden fazla cami ve hatim grubu için sade yönetim ve ok
 Paket Debian 13 için hazırlanır. Paket dosyasını kurun:
 
 ```bash
-apt install ./hatimhane_0.2.0_amd64.deb
+apt install ./hatimhane_0.2.1_amd64.deb
 ```
 
 `/etc/hatimhane.d/10-server.toml` içinde `origin` değerini gerçek HTTPS adresinizle değiştirin. Sonunda `/` olmamalı. Örneğin `https://hatim.oktayaktogan.com.tr`.

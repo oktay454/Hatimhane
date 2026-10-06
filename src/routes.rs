@@ -104,7 +104,7 @@ pub fn router(app: Arc<App>) -> Router {
 		)
 		.route("/api/groups/{group}/readers/{reader}", put(reader_update))
 		.route("/api/users", get(users).post(user_create))
-		.route("/api/users/{id}", put(user_update))
+		.route("/api/users/{id}", put(user_update).delete(user_delete))
 		.layer(DefaultBodyLimit::max(16 * 1024))
 		.layer(middleware::from_fn(headers))
 		.with_state(app)
@@ -918,4 +918,44 @@ async fn user_update(
 		.await?;
 	tx.commit().await?;
 	Ok(Json(json!({"ok":true,"id":id})))
+}
+
+async fn user_delete(State(app): Shared, Path(id): Path<String>, headers: HeaderMap) -> AppResult<Response> {
+	let _guard = app.writes.lock().await;
+	let s = auth::session(&app, &headers, true).await?;
+	auth::owner(&s)?;
+	check_id(&id)?;
+	let old = sqlx::query(&app.db.sql("SELECT role,disabled FROM users WHERE id=?"))
+		.bind(&id)
+		.fetch_optional(&app.db.pool)
+		.await?
+		.ok_or_else(AppError::missing)?;
+	if old.try_get::<String, _>("role")? == "owner" && old.try_get::<i64, _>("disabled")? == 0 {
+		let owners: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE role='owner' AND disabled=0")
+			.fetch_one(&app.db.pool)
+			.await?;
+		if owners <= 1 {
+			return Err(AppError::bad("Son aktif sunucu sahibi hesabı silinemez."));
+		}
+	}
+	let mut tx = app.db.pool.begin().await?;
+	for statement in [
+		"DELETE FROM sessions WHERE user_id=?",
+		"DELETE FROM permissions WHERE user_id=?",
+		"DELETE FROM users WHERE id=?",
+	] {
+		sqlx::query(&app.db.sql(statement))
+			.bind(&id)
+			.execute(&mut *tx)
+			.await?;
+	}
+	tx.commit().await?;
+	let mut response = Json(json!({"ok":true,"id":id})).into_response();
+	if id == s.user_id {
+		response.headers_mut().insert(
+			header::SET_COOKIE,
+			HeaderValue::from_str(&auth::cookie(&app, "", true)).map_err(anyhow::Error::from)?,
+		);
+	}
+	Ok(response)
 }

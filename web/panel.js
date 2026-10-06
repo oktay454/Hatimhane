@@ -163,7 +163,21 @@
 		const permissions = mosques.map(entry => { const label = text("label", ""); const box = document.createElement("input"); box.type = "checkbox"; box.checked = !!user?.mosque_ids.includes(entry.mosque.id); box.addEventListener("change", () => { dirty = true; }); label.append(box, document.createTextNode(entry.mosque.name)); permissionArea.append(label); return [box, entry.mosque.id]; });
 		const display = () => { permissionArea.hidden = role.value === "owner"; }; role.addEventListener("change", display); display();
 		const disabledLabel = text("label", ""); const disabled = document.createElement("input"); disabled.type = "checkbox"; disabled.checked = !!user?.disabled; disabledLabel.append(disabled, document.createTextNode("Bu hesabın girişini kapat")); block.f.append(disabledLabel); block.end();
-		if (user) view.append(button("Yeni görevli hesabı", () => run(() => users())));
+		if (user) {
+			const lastOwner = user.role === "owner" && !user.disabled && all.filter(u => u.role === "owner" && !u.disabled).length === 1;
+			const remove = button("Kullanıcıyı sil", () => run(async () => {
+				if (busy || !confirm(`“${user.username}” kullanıcısı kalıcı olarak silinecek. Oturumları ve cami yetkileri kaldırılacak. Cami ve hatim listeleri korunacak. Emin misiniz?`)) return;
+				busy = true; remove.disabled = true;
+				try {
+					const data = await api(`users/${user.id}`, undefined, "DELETE"); clean();
+					if (user.username === session.username) { login("Hesabınız silindi. Başka bir hesapla giriş yapabilirsiniz."); return; }
+					await users(); saved(data, "Kullanıcı silindi.");
+				} finally { busy = false; remove.disabled = lastOwner; }
+			}), "tehlike");
+			remove.disabled = lastOwner; block.actions.append(remove);
+			if (lastOwner) block.f.append(text("p", "Son aktif sunucu sahibi hesabı silinemez.", "kisa"));
+			view.append(button("Yeni görevli hesabı", () => run(() => users())));
+		}
 	}
 	async function run(action) { if (!leave()) return; try { await action(); } catch (error) { if (error.status === 401) login("Oturumunuz sona erdi. Yeniden giriş yapın."); else status(error.message, true); } }
 	bul("camilerim").addEventListener("click", () => run(list)); bul("hesabim").addEventListener("click", () => run(account)); bul("kullanicilar").addEventListener("click", () => run(() => users()));

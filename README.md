@@ -15,7 +15,7 @@ Rust ile yazılmış, birden fazla cami ve hatim grubu için sade yönetim ve ok
 Paket Debian 13 için hazırlanır. Paket dosyasını kurun:
 
 ```bash
-apt install ./hatimhane_0.2.1_amd64.deb
+apt install ./hatimhane_0.2.2_amd64.deb
 ```
 
 `/etc/hatimhane.d/10-server.toml` içinde `origin` değerini gerçek HTTPS adresinizle değiştirin. Sonunda `/` olmamalı. Örneğin `https://hatim.oktayaktogan.com.tr`.
@@ -65,7 +65,9 @@ Paroladaki URL özel karakterlerini yüzde kodlaması(percent encoding) ile yaz�
 
 Parolalar Argon2id ile özetlenir(hash). Oturum rastgele 256 bit değerdir; veritabanında yalnızca SHA-256 özeti tutulur. Üretimde çerez(cookie) `__Host-`, `Secure`, `HttpOnly`, `SameSite=Lax` kullanır. Oturum 8 saatte veya 30 dakika hareketsizlikte biter. CSRF belirteci(token) ve tam köken(origin) doğrulaması yazma isteklerinde zorunludur. Giriş denemeleri hesap ve istemci adresi bazında sınırlanır.
 
-**Hesabım** bölümünde parola değişimi ve isteğe bağlı iki aşamalı giriş(TOTP) vardır. Doğrulayıcı anahtarı sunucuda doğrulama için saklanır; veritabanı ve yedekler gizli tutulmalıdır. TOTP giriş kodunun tekrar kullanımına izin verilmez. Hesap/parola/yetki değişikliği ilgili oturumları iptal eder. Son aktif sunucu sahibi hesabı panelden kapatılamaz.
+**Hesabım** bölümünde parola değişimi ve isteğe bağlı iki aşamalı giriş(TOTP) vardır. Doğrulayıcı anahtarı sunucuda doğrulama için saklanır; veritabanı ve yedekler gizli tutulmalıdır. TOTP giriş kodunun tekrar kullanımına izin verilmez. Hesap/parola/yetki değişikliği ilgili oturumları iptal eder. Son aktif sunucu sahibi hesabı panelden kapatılamaz veya silinemez.
+
+**Sunucu yönetimi** bölümünde kullanıcıyı seçip **Kullanıcıyı sil** düğmesiyle hesabı kalıcı olarak silebilirsiniz. Onaydan sonra hesap, bütün oturumları ve cami yetkileri tek veritabanı işlemiyle kaldırılır. Cami, grup ve okuyucu kayıtları korunur. Bu işlem yalnızca sunucu sahibine açıktır. Başka aktif sunucu sahibi varsa kendi hesabınızı da silebilirsiniz; bu durumda çıkış yapılır.
 
 Sunucuya işletim sistemi erişimi olan yönetici hesap kurtarmak için:
 

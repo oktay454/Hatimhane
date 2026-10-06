@@ -712,3 +712,228 @@ async fn external_database_round_trip() {
 		.await
 		.unwrap();
 }
+
+#[tokio::test]
+async fn user_deletion_requires_owner_and_revokes_access() {
+	let f = Fixture::new().await;
+	let (cookie, csrf) = f.login().await;
+	let mosque = f.mosque(&cookie, &csrf, "silme-denemesi").await;
+	let group = f.group(&cookie, &csrf, &mosque, 1).await;
+	let before = f
+		.request("GET", "/veri/silme-denemesi.json", None, None, None, false)
+		.await
+		.1;
+	let (status, account, _) = f.request("POST", "/api/users", Some(json!({"username":"silinecek-gorevli","password":"Yalnizca-Test-123","role":"manager","mosque_ids":[mosque],"disabled":false})), Some(&cookie), Some(&csrf), true).await;
+	assert_eq!(status, StatusCode::OK);
+	let id = account["id"].as_str().unwrap();
+	let path = format!("/api/users/{id}");
+	let (status, login, manager_cookie) = f
+		.request(
+			"POST",
+			"/api/login",
+			Some(json!({"username":"silinecek-gorevli","password":"Yalnizca-Test-123"})),
+			None,
+			None,
+			true,
+		)
+		.await;
+	assert_eq!(status, StatusCode::OK);
+	let manager_cookie = manager_cookie.unwrap();
+	let manager_csrf = login["csrf"].as_str().unwrap();
+	assert_eq!(
+		f.request("DELETE", &path, None, None, None, true).await.0,
+		StatusCode::UNAUTHORIZED
+	);
+	assert_eq!(
+		f.request(
+			"DELETE",
+			&path,
+			None,
+			Some(&manager_cookie),
+			Some(manager_csrf),
+			true
+		)
+		.await
+		.0,
+		StatusCode::FORBIDDEN
+	);
+	assert_eq!(
+		f.request("DELETE", &path, None, Some(&cookie), None, true)
+			.await
+			.0,
+		StatusCode::FORBIDDEN
+	);
+	assert_eq!(
+		f.request("DELETE", &path, None, Some(&cookie), Some(&csrf), false)
+			.await
+			.0,
+		StatusCode::FORBIDDEN
+	);
+	assert_eq!(
+		f.request(
+			"DELETE",
+			"/api/users/gecersiz",
+			None,
+			Some(&cookie),
+			Some(&csrf),
+			true
+		)
+		.await
+		.0,
+		StatusCode::BAD_REQUEST
+	);
+	let unknown = format!("/api/users/{}", uuid::Uuid::new_v4());
+	assert_eq!(
+		f.request("DELETE", &unknown, None, Some(&cookie), Some(&csrf), true)
+			.await
+			.0,
+		StatusCode::NOT_FOUND
+	);
+	assert_eq!(
+		f.request("DELETE", &path, None, Some(&cookie), Some(&csrf), true)
+			.await
+			.0,
+		StatusCode::OK
+	);
+	assert_eq!(
+		f.request("DELETE", &path, None, Some(&cookie), Some(&csrf), true)
+			.await
+			.0,
+		StatusCode::NOT_FOUND
+	);
+	assert_eq!(
+		f.request("GET", "/api/session", None, Some(&manager_cookie), None, false)
+			.await
+			.0,
+		StatusCode::UNAUTHORIZED
+	);
+	assert_eq!(
+		f.request(
+			"POST",
+			"/api/login",
+			Some(json!({"username":"silinecek-gorevli","password":"Yalnizca-Test-123"})),
+			None,
+			None,
+			true
+		)
+		.await
+		.0,
+		StatusCode::UNAUTHORIZED
+	);
+	for statement in [
+		"SELECT COUNT(*) FROM users WHERE id=?",
+		"SELECT COUNT(*) FROM sessions WHERE user_id=?",
+		"SELECT COUNT(*) FROM permissions WHERE user_id=?",
+	] {
+		let count: i64 = sqlx::query_scalar(&f.app.db.sql(statement))
+			.bind(id)
+			.fetch_one(&f.app.db.pool)
+			.await
+			.unwrap();
+		assert_eq!(count, 0);
+	}
+	assert_eq!(f.app.db.readers(&group).await.unwrap().len(), 30);
+	assert_eq!(
+		f.request("GET", "/veri/silme-denemesi.json", None, None, None, false)
+			.await
+			.1,
+		before
+	);
+	assert_eq!(
+		f.request("GET", "/api/session", None, Some(&cookie), None, false)
+			.await
+			.0,
+		StatusCode::OK
+	);
+}
+
+#[tokio::test]
+async fn user_deletion_preserves_last_active_owner_and_clears_own_cookie() {
+	let f = Fixture::new().await;
+	let (cookie, csrf) = f.login().await;
+	let accounts = f
+		.request("GET", "/api/users", None, Some(&cookie), None, false)
+		.await
+		.1;
+	let owner = accounts
+		.as_array()
+		.unwrap()
+		.iter()
+		.find(|u| u["username"] == f.username)
+		.unwrap()["id"]
+		.as_str()
+		.unwrap();
+	let path = format!("/api/users/{owner}");
+	let (status, disabled, _) = f.request("POST", "/api/users", Some(json!({"username":"kapali-sahip","password":"Yalnizca-Test-123","role":"owner","mosque_ids":[],"disabled":true})), Some(&cookie), Some(&csrf), true).await;
+	assert_eq!(status, StatusCode::OK);
+	assert_eq!(
+		f.request("DELETE", &path, None, Some(&cookie), Some(&csrf), true)
+			.await
+			.0,
+		StatusCode::BAD_REQUEST
+	);
+	assert_eq!(
+		f.request("GET", "/api/session", None, Some(&cookie), None, false)
+			.await
+			.0,
+		StatusCode::OK
+	);
+	let disabled_path = format!("/api/users/{}", disabled["id"].as_str().unwrap());
+	assert_eq!(
+		f.request("DELETE", &disabled_path, None, Some(&cookie), Some(&csrf), true)
+			.await
+			.0,
+		StatusCode::OK
+	);
+	let (status, second, _) = f.request("POST", "/api/users", Some(json!({"username":"ikinci-sahip","password":"Yalnizca-Test-123","role":"owner","mosque_ids":[],"disabled":false})), Some(&cookie), Some(&csrf), true).await;
+	assert_eq!(status, StatusCode::OK);
+	let (status, login, second_cookie) = f
+		.request(
+			"POST",
+			"/api/login",
+			Some(json!({"username":"ikinci-sahip","password":"Yalnizca-Test-123"})),
+			None,
+			None,
+			true,
+		)
+		.await;
+	assert_eq!(status, StatusCode::OK);
+	let second_cookie = second_cookie.unwrap();
+	let second_csrf = login["csrf"].as_str().unwrap();
+	let (status, _, cleared) = f
+		.request("DELETE", &path, None, Some(&cookie), Some(&csrf), true)
+		.await;
+	assert_eq!(status, StatusCode::OK);
+	assert_eq!(cleared.as_deref(), Some("hatim_session="));
+	assert_eq!(
+		f.request("GET", "/api/session", None, Some(&cookie), None, false)
+			.await
+			.0,
+		StatusCode::UNAUTHORIZED
+	);
+	let second_path = format!("/api/users/{}", second["id"].as_str().unwrap());
+	assert_eq!(
+		f.request(
+			"DELETE",
+			&second_path,
+			None,
+			Some(&second_cookie),
+			Some(second_csrf),
+			true
+		)
+		.await
+		.0,
+		StatusCode::BAD_REQUEST
+	);
+	assert_eq!(
+		f.request("GET", "/api/session", None, Some(&second_cookie), None, false)
+			.await
+			.0,
+		StatusCode::OK
+	);
+	let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE role='owner' AND disabled=0")
+		.fetch_one(&f.app.db.pool)
+		.await
+		.unwrap();
+	assert_eq!(count, 1);
+}

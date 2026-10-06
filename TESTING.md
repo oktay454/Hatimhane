@@ -28,3 +28,9 @@ Lintian denetimi tamamlandı. Belirli açıklanmış istisnalar: parola içerebi
 ## Kapsam
 
 Üretim alan adına kurulum, gerçek TLS sertifikası, canlı Nginx yapılandırması ve mevcut kullanıcı verisinin taşınması bu testlerin kapsamına girmedi. Yapılandırma URL'sini değiştirmek veritabanları arasında veri taşımaz. Bir uygulama örneği(instance) desteklenir.
+
+## Kullanıcı silme — 6 Ekim 2026, 0.2.2
+
+4 birim ve 9 bütünleşme testi geçti. Yeni senaryolar; kimliksiz/görevli/CSRF'siz/kökensiz silme isteklerinin reddini, geçersiz veya bulunmayan hesabı, oturum ve cami yetkilerinin temizlenmesini, silinen hesabın tekrar giriş yapamamasını ve cami/grup/okuyucu verilerinin korunmasını kapsar. Son aktif sahip korunur; kapalı sahip bu kontrolü aşamaz. Başka aktif sahip varken kendi hesabını silme, çerezin temizlenmesi ve diğer sahibin erişiminin devam etmesi doğrulandı. Önceki harici veritabanı testleri bu değişiklik için yeniden çalıştırılmadı.
+
+Yerel deneme panelinde görevli hesabının silme düğmesi ve başarılı silme sonrası listeden kaldırılması görüldü. Son aktif sahibin silme düğmesinin kapalı olduğu da doğrulandı. 0.2.2 amd64 DEB paketi yeniden oluşturuldu ve Lintian denetiminden geçti.

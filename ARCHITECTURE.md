@@ -23,6 +23,8 @@ Cami URI'si 2–64 küçük ASCII harf, rakam veya kısa çizgidir; yol ve özel
 
 `permissions` hesabı camilere bağlar. `owner` tüm camiler ve hesaplar üzerinde yetkilidir; `manager` yalnızca atanan camilerde isim, grup, adres ve döngü ayarlarını yönetir. Yeni cami oluşturma/silme ve görevli atama sunucu sahibine aittir. Sadece panelde düğme gizlemek yetkilendirme sayılmaz; her API isteği kapsamı sunucuda kontrol eder. Görevli başka cami UUID'si göndererek kapsamı genişletemez.
 
+Kullanıcı silme yalnızca sunucu sahibine açıktır. Hesap, oturumları ve cami yetkileri tek veritabanı işlemi(transaction) içinde silinir; camiler, gruplar ve okuyucu listeleri korunur. Son aktif sunucu sahibi sunucuda korunur; kapalı bir sahip hesabı bu sınırı kaldırmaz. Başka aktif sahip varsa kendi hesabını silen kullanıcının oturumu ve çerezi de kaldırılır.
+
 ## Döngü
 
 Cami düzeyindeki ayar gruplara varsayılan olarak geçer. Grup `schedule=null` ile cami ayarını izler veya kendi ayarını saklar. Haftalık gün/saat ya da 1–365 gün aralığı ve saat seçilebilir. Saat dilimi yapılandırmada varsayılan `Europe/Istanbul`.
